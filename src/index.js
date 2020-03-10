@@ -17,7 +17,7 @@ var getWholeParentSelector = function(rule) {
 
 // webpack postcss-loader直接处理vue、js、jsx、tsx 中引进的less
 async function extractLess(root, opts) {
-  opts = opts || {
+  opts = Object.assign({
     // 输出目录
     output: '',
     // webpack配置路径
@@ -30,7 +30,7 @@ async function extractLess(root, opts) {
     result: null,
     // 生成的文件名
     fileName: 'theme.less'
-  };
+  }, opts)
   // || __dirname.replace('/node_modules/' + pluginName, '')
   var path = opts.output || '';
   var tree = [];
@@ -48,7 +48,9 @@ async function extractLess(root, opts) {
     let currentSelector = rule.selector
     rule.walkDecls(function(decl) {
       // 排除非变量属性
-      if (decl.value.indexOf('@') > -1 && decl.parent.selector === currentSelector) children.push(decl.prop + ': ' + decl.value + ';')
+      if (decl.value.indexOf('@') > -1 && decl.parent.selector === currentSelector) {
+        children.push(decl.prop + ': ' + decl.value + ';')
+      }
     })
   })
   if (opts.result && typeof opts.result === 'function') opts.result(tree)
@@ -63,7 +65,7 @@ async function extractLess(root, opts) {
   // 写文件，读取文件目录
   if (lessTemplate.length > 0) {
     if (!fs.existsSync(path)) fs.mkdirSync(path)
-    var pathFile = path + '/' + fileName
+    var pathFile = path + '/' + opts.fileName
     if (fs.existsSync(pathFile)) {
       fs.unlink(pathFile, function(err) {
         if (!err) fs.writeFileSync(pathFile, lessTemplate)
