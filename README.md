@@ -1,4 +1,3 @@
-# extract-less-vars-selector
 # Install
 ```
 npm i -D extract-less-vars-selector
@@ -113,3 +112,52 @@ module.exports = {
 |fileName| string | theme.less | Output less fine name |
 |handleImportLess| boolean | false | Whether to process less files introduced in less files |
 | webpackConfigPath | string | -- | Get webpack alias name to resolve import file's true path |
+
+# Example
+
+```css
+/** theme.less **/
+@primary-color: red;
+@text-color: blue;
+@font-size: 14px;
+@background-color: #ddd;
+
+h5 {
+  color: #fff;
+}
+table {
+  background-color: @background-color;
+}
+```
+```css
+/** index.less **/
+
+@import './index.less';
+
+.text-color {
+  border: 1px solid #ddd;
+  background: green;
+  color: @primary-color;
+  font-size: @font-size;
+  span {
+    color: @text-color;
+    font-size: 16px;
+  }
+  h1 {
+    text-align: right;
+  }
+}
+div {
+  color: @text-color;
+}
+```
+
+```css
+/** after handler **/
+/* only save vars */
+table { background-color: @background-color; }
+div { color: @text-color; }
+.text-color span { color: @text-color; }
+.text-color { color: @text-color; font-size: @font-size; }
+
+```
