@@ -115,8 +115,15 @@ module.exports = {
 
 # Example
 
+```
+├──global.less
+├──index.less
+├──theme
+│   ├── theme.less
+```
+
 ```css
-/** theme.less **/
+/** global.less **/
 @primary-color: red;
 @text-color: blue;
 @font-size: 14px;
@@ -132,7 +139,7 @@ table {
 ```css
 /** index.less **/
 
-@import './index.less';
+@import './global.less';
 
 .text-color {
   border: 1px solid #ddd;
@@ -153,7 +160,7 @@ div {
 ```
 
 ```css
-/** after handler **/
+/** after handler theme/theme.less **/
 /* only save vars */
 table { background-color: @background-color; }
 div { color: @text-color; }
