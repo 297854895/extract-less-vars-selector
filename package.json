@@ -1,6 +1,6 @@
 {
   "name": "extract-less-vars-selector",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Extract all variable selectors in less files",
   "main": "src/index.js",
   "scripts": {
@@ -8,13 +8,16 @@
   },
   "dependencies": {
     "postcss": "^7.0.27",
-    "postcss-less": "^3.1.4"
+    "postcss-less": "^3.1.4",
+    "postcss-comment": "^2.0.0",
+    "js-md5": "^0.7.3"
   },
   "keywords": [
     "postcss-loader",
+    "postcss-comment",
     "postcss",
     "less"
   ],
-  "author": "297854895",
+  "author": "zhukecheng",
   "license": "ISC"
 }
