@@ -7,6 +7,7 @@ npm i -D extract-less-vars-selector
 ```js
 var path = require('path');
 var extractLessVarsSelctor = require('extract-less-vars-selector');
+const MergeLess = require('extract-less-vars-selector/src/mergeLess.js')
 
 module.exports = {
   mode: 'development',
@@ -37,7 +38,6 @@ module.exports = {
             plugins: [
               new extractLessVarsSelctor({
                 handleImportLess: true,
-                reverse: false,
                 output: path.resolve(__dirname, './theme'),
                 webpackConfigPath: path.resolve(__dirname, './webpack.config.js')
               })
@@ -46,33 +46,13 @@ module.exports = {
         }
       ]
     }]
-  }
+  },
+  plugins: [
+    new MergeLess({
+      path: path.resolve(__dirname, './theme')
+    })
+  ]
 };
-```
-## Example for postcss-loader options
-```js
-var path = require('path')
-
-module.exports = ({
-  file,
-  options,
-  env
-}) => ({
-  parser: file.extname === '.sss' ? 'sugarss' : false,
-  plugins: {
-    'postcss-import': {
-      root: file.dirname
-    },
-    'postcss-preset-env': options['postcss-preset-env'] ? options['postcss-preset-env'] : false,
-    'cssnano': env === 'production' ? options.cssnano : false,
-    'extract-less-vars-selector': {
-      handleImportLess: true,
-      reverse: false,
-      output: path.resolve(__dirname, './theme'),
-      webpackConfigPath: path.resolve(__dirname, './webpack.config.js')
-    }
-  }
-})
 ```
 ## Example for vue.config.js
 ```js
@@ -99,6 +79,10 @@ module.exports = {
         ]
       })
       .end()
+
+    config.plugins.push(new MergeLess({
+      path: path.resolve(__dirname, './theme')
+    }))
   }
 }
 ```
@@ -106,24 +90,30 @@ module.exports = {
 
 |Name|Type|Default|Description|
 | --- | --- | --- | --- |
-| result | function | null | Return result array |
-|reverse| boolean | false | Reverse result |
 |output| string | -- | Path to create a less file. No setting, no output |
-|fileName| string | theme.less | Output less fine name |
+|outputMD5Name| boolean | false | md5 file name |
 |handleImportLess| boolean | false | Whether to process less files introduced in less files |
 | webpackConfigPath | string | -- | Get webpack alias name to resolve import file's true path |
 
 # Example
-
+## Before postcss-loader
 ```
-├──global.less
-├──index.less
-├──theme
-│   ├── theme.less
+├──src
+│   ├──global
+│   │   ├── global.less
+│   ├── index.less
+│   ├── index.js
+```
+
+```js
+/** src/index.js **/
+import styles from './index.less';
+// do something
+...
 ```
 
 ```css
-/** global.less **/
+/** src/global/global.less **/
 @primary-color: red;
 @text-color: blue;
 @font-size: 14px;
@@ -137,9 +127,9 @@ table {
 }
 ```
 ```css
-/** index.less **/
+/** src/index.less **/
 
-@import './global.less';
+@import './global/global.less';
 
 .text-color {
   border: 1px solid #ddd;
@@ -158,13 +148,33 @@ div {
   color: @text-color;
 }
 ```
+## After postcss-loader
+```
+├──src
+│   ├──global
+│   │   ├── global.less
+│   ├── index.less
+│   ├── index.js
+├──theme
+│   ├──-src-index.less.less
+│   ├──theme.less
+```
+```css
+/* src/theme/-src-index.less.less.less */
+table { background-color: @background-color; }
+.text-color { color: @primary-color; font-size: @font-size; }
+.text-color span { color: @text-color; }
+div { color: @text-color; }
+
+```
 
 ```css
-/** after handler theme/theme.less **/
-/* only save vars */
+/* src/theme/theme.less */
+
+/** -src-index.less.less **/
 table { background-color: @background-color; }
-div { color: @text-color; }
+.text-color { color: @primary-color; font-size: @font-size; }
 .text-color span { color: @text-color; }
-.text-color { color: @text-color; font-size: @font-size; }
+div { color: @text-color; }
 
 ```
